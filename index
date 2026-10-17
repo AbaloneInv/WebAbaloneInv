@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Abalone Investments · Inversiones, estrategia y operaciones</title>
+<meta name="description" content="Abalone Investments. Inversiones, estrategia y operaciones.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abisal:#0E2A47; --mediterraneo:#2C5F8A; --nacar:#F2EBE4; --concha:#DCE3DE;
+  --bronce:#B08D57; --tinta:#16191C; --muted:#5A5F63;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Manrope',system-ui,sans-serif; color:var(--tinta); background:var(--nacar);
+  line-height:1.6; -webkit-font-smoothing:antialiased; min-height:100vh;
+  display:flex; flex-direction:column; position:relative; overflow-x:hidden;
+}
+/* veta nácar: capas difusas muy sutiles, solo decorativas */
+body::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(60% 50% at 85% 8%, rgba(144,180,212,.34), transparent 70%),
+    radial-gradient(50% 45% at 8% 30%, rgba(220,227,222,.85), transparent 72%),
+    radial-gradient(45% 40% at 70% 78%, rgba(226,208,214,.45), transparent 70%),
+    radial-gradient(40% 35% at 20% 95%, rgba(165,205,200,.30), transparent 70%);
+}
+.wrap{position:relative; z-index:1; width:100%; max-width:1040px; margin:0 auto; padding:0 24px}
+header{padding:32px 0}
+.brand{display:flex; align-items:center; gap:14px; text-decoration:none}
+.brand svg{width:46px; height:auto; flex:none}
+.brand .name{font-family:'Bitter',serif; font-weight:600; font-size:22px; color:var(--abisal); line-height:1.1}
+.brand .sub{display:block; font-family:'Manrope',sans-serif; font-weight:600; font-size:10.5px; letter-spacing:.18em; color:var(--mediterraneo); text-transform:uppercase; margin-top:3px}
+
+main{flex:1; display:flex; align-items:center; padding:48px 0 72px}
+.grid{display:grid; grid-template-columns:1.1fr .9fr; gap:72px; align-items:start; width:100%}
+h1{font-family:'Bitter',serif; font-weight:600; color:var(--abisal); font-size:clamp(32px,4.6vw,50px); line-height:1.12; letter-spacing:-.01em}
+.lead{margin-top:22px; font-size:18px; color:var(--muted); max-width:30em}
+.areas{margin-top:34px; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--mediterraneo); font-weight:600}
+.areas span+span::before{content:"·"; margin:0 .7em; color:var(--bronce)}
+
+.card{background:rgba(255,255,255,.62); backdrop-filter:blur(6px); border:1px solid rgba(14,42,71,.10); border-radius:14px; padding:32px}
+.card h2{font-family:'Bitter',serif; font-weight:600; font-size:22px; color:var(--abisal); margin-bottom:6px}
+.card p.hint{font-size:14px; color:var(--muted); margin-bottom:22px}
+label{display:block; font-size:13px; font-weight:600; color:var(--abisal); margin:14px 0 6px}
+input[type=text],input[type=email],textarea{
+  width:100%; font:inherit; font-size:15px; color:var(--tinta); background:#fff;
+  border:1px solid #C9CFD3; border-radius:8px; padding:11px 13px; transition:border-color .15s, box-shadow .15s;
+}
+textarea{min-height:110px; resize:vertical}
+input:focus,textarea:focus{outline:none; border-color:var(--mediterraneo); box-shadow:0 0 0 3px rgba(44,95,138,.18)}
+.consent{display:flex; gap:10px; align-items:flex-start; margin-top:16px; font-size:12.5px; color:var(--muted); font-weight:400}
+.consent input{margin-top:3px; accent-color:var(--abisal)}
+.consent a{color:var(--mediterraneo)}
+button{
+  margin-top:20px; width:100%; font:inherit; font-weight:600; font-size:15px; letter-spacing:.02em;
+  color:var(--nacar); background:var(--abisal); border:0; border-radius:8px; padding:14px 20px; cursor:pointer; transition:background .15s;
+}
+button:hover{background:var(--mediterraneo)}
+button:disabled{opacity:.6; cursor:default}
+button:focus-visible,a:focus-visible{outline:3px solid var(--mediterraneo); outline-offset:2px}
+.hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden}
+#status{margin-top:14px; font-size:14px; min-height:1.4em}
+#status.ok{color:#1F6B3F} #status.err{color:#9B2C2C}
+
+footer{position:relative; z-index:1; padding:26px 0 34px; border-top:1px solid rgba(14,42,71,.10); font-size:12.5px; color:var(--muted)}
+footer .row{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap}
+details{margin-top:16px; max-width:760px}
+summary{cursor:pointer; color:var(--mediterraneo); font-weight:600}
+details p{margin-top:10px; line-height:1.55}
+
+.grid>*{min-width:0}
+.areas{display:flex; flex-wrap:wrap; row-gap:6px}
+@media (max-width:820px){
+  .grid{grid-template-columns:minmax(0,1fr); gap:40px}
+  main{padding:24px 0 48px}
+  .card{padding:24px}
+}
+details .legaltxt{max-height:60vh;overflow:auto;padding-right:8px;font-size:13px;line-height:1.6}
+.legaltxt h4{margin:18px 0 6px;font-size:14px}
+.legaltxt ul{padding-left:18px;margin:6px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="#" aria-label="Abalone Investments">
+      <svg viewBox="0 0 100 84" role="img" aria-label="Logotipo de Abalone Investments">
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 62 C 12 30, 45 12, 78 22 C 92 27, 92 55, 78 64 C 65 72, 45 70, 34 60" stroke="#0E2A47" stroke-width="3.2"/>
+          <path d="M20 58 C 22 34, 48 20, 74 28" stroke="#0E2A47" stroke-width="2.2"/>
+          <path d="M27 54 C 29 38, 50 27, 69 33" stroke="#2C5F8A" stroke-width="2.2"/>
+          <circle cx="20" cy="34" r="3" stroke="#0E2A47" stroke-width="2"/>
+          <circle cx="27" cy="27" r="2.6" stroke="#0E2A47" stroke-width="2"/>
+          <circle cx="35" cy="22" r="2.2" stroke="#0E2A47" stroke-width="2"/>
+        </g>
+      </svg>
+      <span><span class="name">Abalone</span><span class="sub">Investments</span></span>
+    </a>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section>
+        <h1>Criterio para invertir. Tecnología para operar.</h1>
+        <p class="lead">Trabajamos con quienes invierten y con quienes construyen, para que decidan con más orden y operen con menos fricción.</p>
+        <p class="areas"><span>Inversiones</span><span>Estrategia</span><span>Operaciones</span></p>
+      </section>
+
+      <section class="card" id="contacto" aria-labelledby="t-contacto">
+        <h2 id="t-contacto">Hablemos</h2>
+        <p class="hint">Cuéntanos brevemente tu proyecto y te respondemos por email.</p>
+        <form id="form" novalidate>
+          <input type="hidden" name="access_key" value="a763f94c-eafd-4d38-9e6b-1078ed7dfdff">
+          <input type="hidden" name="subject" value="Nuevo contacto desde abaloneinvestments.es">
+          <input type="hidden" name="from_name" value="Web Abalone Investments">
+          <!-- honeypot: los humanos no lo ven; los bots lo rellenan -->
+          <div class="hp" aria-hidden="true"><label>No rellenar<input type="text" name="company_site" tabindex="-1" autocomplete="off"></label></div>
+
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="name" autocomplete="name" required>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
+          <label for="mensaje">Mensaje</label>
+          <textarea id="mensaje" name="message" required></textarea>
+
+          <label class="consent" for="rgpd">
+            <input type="checkbox" id="rgpd" required>
+            <span>He leído el <a href="#legal" onclick="document.getElementById('legal').open=true">aviso legal</a> y la <a href="#privacidad" onclick="document.getElementById('legal').open=true">política de privacidad</a> y acepto el tratamiento de mis datos para responder a mi consulta.</span>
+          </label>
+          <button type="submit" id="enviar">Enviar mensaje</button>
+          <p id="status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <span>© <span id="year">2026</span> Abalone Investments · Bonis 715 SL</span>
+      <span>abaloneinvestments.es</span>
+    </div>
+    <details id="legal">
+<summary>Aviso legal y privacidad</summary>
+<div class="legaltxt">
+<h4>1. Información general</h4>
+<p>En cumplimiento del deber de información establecido en el artículo 10 de la Ley 34/2002, de 11 de julio, de servicios de la sociedad de la información y de comercio electrónico (LSSI-CE), se facilitan los datos identificativos del titular de este sitio web:</p>
+<ul>
+<li><strong>Denominación social:</strong> Bonis 715 SL</li>
+<li><strong>CIF:</strong> B95098117</li>
+<li><strong>Domicilio social:</strong> Urkisuondo 29 B, Sopela (Bizkaia)</li>
+<li><strong>Contacto:</strong> <span data-m="info"></span></li>
+</ul>
+<p>En adelante, la entidad titular del sitio web se denominará «La Sociedad».</p>
+<p>El presente aviso legal regula el acceso, la navegación y la utilización de este sitio web, así como las responsabilidades derivadas del uso de sus contenidos.</p>
+<p>El acceso y la navegación por el sitio web atribuyen la condición de persona usuaria e implican la aceptación de las condiciones establecidas en este aviso legal, sin perjuicio de aquellas otras condiciones específicas que puedan resultar aplicables a determinados servicios.</p>
+<h4>2. Propiedad intelectual e industrial</h4>
+<p>Los derechos de propiedad intelectual e industrial sobre este sitio web y sus elementos, incluyendo, entre otros, los textos, imágenes, fotografías, gráficos, diseños, logotipos, marcas, nombres comerciales, estructura, código fuente y demás contenidos, pertenecen a La Sociedad o se utilizan legítimamente con la autorización de sus respectivos titulares.</p>
+<p>El acceso al sitio web no implica la cesión, transmisión ni concesión de licencia alguna sobre dichos derechos, salvo que se indique expresamente lo contrario.</p>
+<p>Queda prohibida la reproducción, distribución, comunicación pública, transformación o cualquier otra forma de explotación, total o parcial, de los contenidos del sitio web sin la autorización previa y expresa de su titular, salvo en los casos legalmente permitidos.</p>
+<p>La utilización no autorizada de los contenidos podrá dar lugar al ejercicio de las acciones legales que correspondan.</p>
+<p>La persona usuaria se compromete a respetar los derechos de propiedad intelectual e industrial de La Sociedad y de terceras personas.</p>
+<h4>3. Condiciones de utilización del sitio web</h4>
+<p>Los contenidos de este sitio web se ofrecen con carácter general e informativo, con la finalidad de presentar a La Sociedad, su actividad, sus criterios de inversión, sus áreas de interés y, en su caso, las iniciativas, proyectos u oportunidades relacionadas con su actividad.</p>
+<p>La información publicada no constituye, por sí misma, una oferta vinculante, una invitación a invertir, una recomendación de inversión ni asesoramiento financiero, jurídico, fiscal o de cualquier otra naturaleza dirigido a una persona o situación concreta.</p>
+<p>La información disponible en el sitio web no debe utilizarse como único fundamento para adoptar decisiones de inversión o de carácter empresarial. Cualquier decisión deberá basarse en un análisis independiente de las circunstancias particulares, los riesgos y la información específica que resulte aplicable.</p>
+<p>La Sociedad procurará que la información publicada sea adecuada y esté actualizada, pero no garantiza que todos los contenidos sean completos, exactos o estén permanentemente actualizados.</p>
+<p>La Sociedad podrá modificar, actualizar, corregir o retirar los contenidos del sitio web en cualquier momento, sin necesidad de previo aviso.</p>
+<h4>4. Utilización lícita</h4>
+<p>La persona usuaria se compromete a utilizar el sitio web y sus contenidos de conformidad con la legislación vigente, la buena fe, el orden público y el presente aviso legal.</p>
+<p>En particular, se abstendrá de:</p><ul>
+<li>Utilizar el sitio web con fines ilícitos o contrarios a la normativa aplicable.</li>
+<li>Realizar actuaciones que puedan dañar, inutilizar, sobrecargar o deteriorar el sitio web, sus sistemas o los servicios disponibles.</li>
+<li>Intentar acceder sin autorización a sistemas, cuentas, datos o recursos restringidos.</li>
+<li>Introducir virus, código malicioso o cualquier otro elemento susceptible de alterar el funcionamiento de los sistemas informáticos.</li>
+<li>Utilizar los contenidos de forma que se vulneren los derechos o intereses legítimos de La Sociedad o de terceras personas.</li>
+</ul>
+<p>La persona usuaria responderá de los daños y perjuicios que pudieran derivarse del incumplimiento de estas obligaciones, en los términos previstos por la legislación aplicable.</p>
+<h4>5. Enlaces a sitios web de terceros</h4>
+<p>Este sitio web puede incluir enlaces a páginas web, plataformas o recursos gestionados por terceras personas o entidades.</p>
+<p>La inclusión de dichos enlaces tiene una finalidad exclusivamente informativa y no implica necesariamente la existencia de una relación, asociación, aprobación o recomendación por parte de La Sociedad.</p>
+<p>La Sociedad no controla de forma general los contenidos, las políticas, la disponibilidad ni las prácticas de los sitios web de terceros, por lo que no asume responsabilidad por ellos, sin perjuicio de las obligaciones que legalmente le correspondan.</p>
+<p>La persona usuaria accede a dichos sitios web bajo su propia responsabilidad y deberá consultar las condiciones de uso y las políticas de privacidad aplicables a cada uno de ellos.</p>
+<h4>6. Exactitud de la información y garantía de errores</h4>
+<p>La Sociedad realiza esfuerzos razonables para mantener la información publicada en el sitio web actualizada y para reducir la aparición de errores técnicos o materiales.</p>
+<p>No obstante, no garantiza la inexistencia de errores, omisiones o inexactitudes en los contenidos, ni que la información esté disponible de manera ininterrumpida o resulte adecuada para todas las finalidades particulares.</p>
+<p>Cuando se reproduzcan o referencien publicaciones, datos o documentos procedentes de fuentes oficiales o de terceras personas, deberá atenderse a la fuente original correspondiente para verificar su contenido y vigencia.</p>
+<p>La Sociedad se reserva el derecho de corregir los errores detectados y modificar los contenidos cuando resulte necesario.</p>
+<h4>7. Disponibilidad del servicio</h4>
+<p>La Sociedad podrá efectuar, en cualquier momento, modificaciones en el sitio web, en su configuración, presentación, estructura o contenidos.</p>
+<p>Asimismo, podrá interrumpir temporalmente el acceso al sitio web por motivos de mantenimiento, actualización, seguridad, incidencias técnicas o causas ajenas a su control.</p>
+<p>La Sociedad realizará esfuerzos razonables para procurar la disponibilidad y continuidad del sitio web, pero no garantiza que su funcionamiento sea ininterrumpido o esté libre de errores.</p>
+<p>La Sociedad no será responsable de los daños o perjuicios que puedan derivarse de interrupciones, fallos técnicos o falta de disponibilidad cuando no le sean legalmente imputables, sin perjuicio de las responsabilidades que no puedan excluirse conforme a la normativa aplicable.</p>
+<h4>8. Responsabilidad por el uso de la información</h4>
+<p>La persona usuaria es responsable del uso que haga del sitio web y de la información disponible en él.</p>
+<p>En particular, la información relativa a inversiones, mercados, empresas, sectores, proyectos o tendencias empresariales tiene carácter general e informativo y puede estar sujeta a cambios, incertidumbres y riesgos.</p>
+<p>Su publicación no garantiza resultados, rendimientos, rentabilidades ni la consecución de objetivos económicos o empresariales.</p>
+<p>La Sociedad no será responsable de las decisiones adoptadas exclusivamente sobre la base de dicha información ni de los daños que pudieran derivarse de su utilización, en la medida en que la exclusión de responsabilidad resulte legalmente admisible.</p>
+<p>La información del sitio web no sustituye el análisis individualizado que pueda resultar necesario en cada caso ni la consulta con profesionales cualificados cuando proceda.</p>
+<p>Nada de lo dispuesto en este aviso legal limitará las responsabilidades que no puedan excluirse o restringirse de acuerdo con la legislación vigente.</p>
+<h4>9. Protección de datos personales</h4>
+<p>La Sociedad tratará los datos personales que, en su caso, se recaben a través del sitio web de conformidad con el Reglamento (UE) 2016/679, General de Protección de Datos (RGPD), la Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales, y demás normativa aplicable.</p>
+<p>Los datos personales se tratarán para las finalidades que correspondan en cada caso, tales como gestionar consultas y solicitudes de información, mantener comunicaciones profesionales, atender posibles relaciones contractuales o precontractuales y cumplir las obligaciones legales aplicables.</p>
+<p>La base jurídica del tratamiento dependerá de la finalidad concreta y podrá incluir el consentimiento de la persona interesada, la aplicación de medidas precontractuales, la ejecución de un contrato, el cumplimiento de obligaciones legales o el interés legítimo de La Sociedad, cuando proceda.</p>
+<p>Los datos podrán ser comunicados a proveedores que presten servicios a La Sociedad y que necesiten acceder a ellos para desarrollar sus funciones, así como a autoridades u organismos públicos cuando exista una obligación legal. Dichos accesos y comunicaciones se realizarán con las garantías exigidas por la normativa aplicable.</p>
+<p>Los datos se conservarán durante el tiempo necesario para cumplir la finalidad para la que fueron recabados y, posteriormente, durante los plazos exigidos por la legislación o mientras puedan derivarse responsabilidades del tratamiento.</p>
+<p>Las personas interesadas podrán ejercer, cuando proceda, sus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad, así como retirar el consentimiento cuando el tratamiento se base en él.</p>
+<p>Para ejercer estos derechos o solicitar información adicional sobre el tratamiento de sus datos, podrán dirigirse a La Sociedad a través de <span data-m="info"></span>.</p>
+<p>Asimismo, podrán presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD), a través de su sitio web: <a href="https://www.aepd.es" target="_blank" rel="noopener">https://www.aepd.es</a>.</p>
+<p>La información detallada sobre las finalidades, bases jurídicas, plazos de conservación, destinatarios y demás aspectos del tratamiento se encuentra disponible en la correspondiente <a href="#privacidad" onclick="document.getElementById('legal').open=true">Política de Privacidad</a>.</p>
+<h4>10. Uso de herramientas colaborativas y comunicaciones electrónicas</h4>
+<p>La Sociedad podrá utilizar herramientas digitales y aplicaciones colaborativas para gestionar su actividad y mantener comunicaciones con personas usuarias, inversores, empresas, proveedores, colaboradores y otros interlocutores profesionales.</p>
+<p>En el marco de dichas comunicaciones podrán tratarse datos personales, como el nombre y apellidos, los datos de contacto, la imagen o la voz, así como otros datos necesarios para gestionar la relación correspondiente.</p>
+<p>Cuando una reunión, llamada o sesión vaya a ser grabada, se informará previamente a las personas participantes cuando así lo exija la normativa aplicable, indicando la finalidad y las condiciones del tratamiento.</p>
+<p>Los datos obtenidos mediante estas herramientas se tratarán de acuerdo con la normativa de protección de datos y con la información facilitada a las personas interesadas.</p>
+<h4>11. Uso de redes sociales</h4>
+<p>La Sociedad podrá mantener perfiles en redes sociales con la finalidad de difundir información sobre su actividad, comunicar novedades, compartir contenidos de interés y mantener relaciones profesionales.</p>
+<p>Las personas usuarias que interactúen con dichos perfiles deberán respetar las condiciones de uso de cada plataforma y los derechos de La Sociedad y de terceras personas.</p>
+<p>Los datos personales que se obtengan a través de estas interacciones serán tratados de conformidad con la normativa aplicable, la configuración de privacidad de cada plataforma y la política de privacidad correspondiente.</p>
+<p>La Sociedad podrá retirar comentarios o contenidos publicados en sus perfiles cuando resulten ilícitos, ofensivos, contrarios a las condiciones de la plataforma o lesivos para los derechos de terceras personas, sin perjuicio de las obligaciones legales aplicables.</p>
+<p>La Sociedad no será responsable de los contenidos publicados por otras personas usuarias, salvo en los supuestos en que la legislación establezca lo contrario.</p>
+<p>Las personas usuarias deberán tener presente que la información que publiquen en redes sociales puede ser accesible para terceros y que el tratamiento de sus datos en dichas plataformas también puede estar sujeto a las políticas de los respectivos proveedores.</p>
+<h4>12. Modificaciones del aviso legal</h4>
+<p>La Sociedad podrá modificar el presente aviso legal para adaptarlo a cambios legislativos, jurisprudenciales, técnicos o relativos a su actividad.</p>
+<p>La versión vigente será la publicada en este sitio web. Se recomienda a las personas usuarias consultar periódicamente este apartado.</p>
+<p>Cuando resulte legalmente exigible, las modificaciones se comunicarán o someterán a aceptación de las personas interesadas en la forma que corresponda.</p>
+<h4>13. Legislación aplicable y jurisdicción</h4>
+<p>El presente aviso legal se regirá por la legislación española y por la normativa de la Unión Europea que resulte aplicable.</p>
+<p>Para la resolución de las controversias que pudieran derivarse del acceso o utilización del sitio web, las partes se someterán a los juzgados y tribunales que resulten competentes conforme a la legislación vigente.</p>
+<p>Cuando la persona usuaria tenga la condición legal de consumidora, se respetarán las normas imperativas sobre competencia judicial y protección de consumidores que resulten aplicables.</p>
+<h4 id="privacidad">Política de Privacidad</h4>
+<ul>
+<li><strong>Responsable:</strong> Bonis 715 SL, CIF B95098117, Urkisuondo 29 B, Sopela (Bizkaia). Contacto: <span data-m="info"></span>.</li>
+<li><strong>Datos tratados:</strong> nombre, email y contenido del mensaje enviados mediante el formulario.</li>
+<li><strong>Finalidad:</strong> atender y responder tu consulta.</li>
+<li><strong>Base jurídica:</strong> tu consentimiento (art. 6.1.a RGPD), que puedes retirar en cualquier momento.</li>
+<li><strong>Destinatarios:</strong> el proveedor que gestiona el envío del formulario (Web3Forms), como encargado del tratamiento, y los proveedores de correo y alojamiento web de La Sociedad. No se ceden datos a otros terceros salvo obligación legal.</li>
+<li><strong>Conservación:</strong> el tiempo necesario para atender la consulta y, después, durante los plazos legales de prescripción de responsabilidades.</li>
+<li><strong>Derechos:</strong> acceso, rectificación, supresión, oposición, limitación y portabilidad, escribiendo a <span data-m="info"></span>. Reclamación ante la AEPD (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</li>
+</ul>
+<p>Esta web no utiliza cookies de seguimiento ni de publicidad. Las tipografías se cargan desde Google Fonts.</p>
+</div>
+</details>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('[data-m]').forEach(s=>{const m=s.dataset.m+'@abaloneinvestments.es';s.innerHTML='<a href="mailto:'+m+'">'+m+'</a>';});
+document.getElementById('year').textContent = new Date().getFullYear();
+const form = document.getElementById('form');
+const statusEl = document.getElementById('status');
+const btn = document.getElementById('enviar');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  statusEl.className = ''; statusEl.textContent = '';
+  if (!form.reportValidity()) return;
+  if (form.company_site.value) return; // bot
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(Object.fromEntries([...new FormData(form)].filter(([k]) => k !== 'company_site')))
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      form.reset();
+      statusEl.className = 'ok';
+      statusEl.textContent = 'Mensaje enviado. Te responderemos lo antes posible.';
+    } else { throw new Error(data.message || 'Error'); }
+  } catch (err) {
+    statusEl.className = 'err';
+    statusEl.textContent = 'No se ha podido enviar el mensaje. Inténtalo de nuevo en unos minutos.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enviar mensaje';
+  }
+});
+</script>
+</body>
+</html>
